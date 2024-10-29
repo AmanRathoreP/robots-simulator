@@ -28,14 +28,17 @@ class Robot:
     """
 
     # todo center_of_rotation
-    def __init__(self,
-                 position: list[int],
-                 angle: float,
-                 size: list[int],
-                 center_of_rotation: list[float],
-                 sensors: dict,
-                 base_color: tuple[int, int, int] = (0, 128, 255),
-                 outline_color: tuple[int, int, int] = (0, 0, 0)):
+    def __init__(
+            self,
+            position: list[int],
+            angle: float,
+            size: list[int],
+            center_of_rotation: list[float],
+            sensors: dict,
+            base_color: tuple[int, int, int] = (0, 128, 255),
+            outline_color: tuple[int, int, int] = (0, 0, 0),
+            group=1,
+    ):
         """
         Initializes the Robot.
 
@@ -47,6 +50,7 @@ class Robot:
             sensors (dict): A dictionary of sensors associated with the robot.
             base_color (tuple[int, int, int]): The color of the robot's body (default: blue).
             outline_color (tuple[int, int, int]): The color of the robot's outline (default: black).
+            group (Any): Robots of the same group doesn't collide with each other.
         """
         self.__size = size
         self.__position = pymunk.Vec2d(position[0], position[1])
@@ -61,6 +65,7 @@ class Robot:
 
         self.shape = pymunk.Poly.create_box(self.body, (size[0], size[1]))
         self.shape.elasticity = 0.5
+        self.shape.filter = pymunk.ShapeFilter(group=group)
 
         self.acceleration_vector = vmath.Vector2(0, 0)
         self.velocity = vmath.Vector2(0, 0)
