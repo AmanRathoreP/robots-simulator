@@ -15,7 +15,7 @@ class Robot:
         size (list[int]): The width and height of the robot in pixels.
         position (pymunk.Vec2d): The current position of the robot in the simulation, represented as a vector.
         angle (float): The current angle of the robot in degrees, indicating its orientation.
-        sensors (dict): A dictionary representing the sensors attached to the robot, which can be used for navigation and obstacle detection.
+        sensors (list): A list representing the sensors attached to the robot, which can be used for navigation and obstacle detection.
         body (pymunk.Body): The physical body of the robot in the simulation, which interacts with the physics engine.
         shape (pymunk.Poly): The shape of the robot used for collision detection, defining its physical boundaries.
         acceleration_vector (vmath.Vector2): The current acceleration vector of the robot, which affects its linear movement.
@@ -34,7 +34,7 @@ class Robot:
             angle: float,
             size: list[int],
             center_of_rotation: list[float],
-            sensors: dict,
+            sensors: list,
             base_color: tuple[int, int, int] = (0, 128, 255),
             outline_color: tuple[int, int, int] = (0, 0, 0),
             group=1,
@@ -227,6 +227,12 @@ class Robot:
 
         self.body.angle %= (2 * math.pi)
 
+        for sensor in self.__sensors:
+            sensor.update(
+                time_step,
+                events,
+            )
+
     def draw(self, screen):
         """
         Draw the robot on the Pygame screen.
@@ -268,3 +274,10 @@ class Robot:
         rotated_rect = rotated_marker.get_rect(center=marker_rect.center)
 
         screen.blit(rotated_marker, rotated_rect.topleft)
+
+        for sensor in self.__sensors:
+            sensor.draw(
+                screen,
+                self.body.position,
+                self.body.angle,
+            )  # contains a blit function
