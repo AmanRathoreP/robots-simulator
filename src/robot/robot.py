@@ -87,7 +87,7 @@ class Robot:
         Example:
             robot.set_position([200, 150])  # Move the robot to (200, 150)
         """
-        self.body.position = pymunk.Vec2d(position)
+        self.body.position = pymunk.Vec2d(position[0], position[1])
 
     def set_angle(self, angle: float):
         """
