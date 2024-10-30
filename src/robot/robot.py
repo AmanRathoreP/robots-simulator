@@ -52,16 +52,16 @@ class Robot:
             outline_color (tuple[int, int, int]): The color of the robot's outline (default: black).
             group (Any): Robots of the same group doesn't collide with each other.
         """
-        self.__size = size
-        self.__position = pymunk.Vec2d(position[0], position[1])
-        self.__angle = angle
-        self.__sensors = sensors
-        self.__center_of_rotation = center_of_rotation
+        self._size = size
+        self._position = pymunk.Vec2d(position[0], position[1])
+        self._angle = angle
+        self._sensors = sensors
+        self._center_of_rotation = center_of_rotation
 
         self.body = pymunk.Body(mass=1, moment=pymunk.moment_for_box(1, size))
-        self.body.position = self.__position
-        self.body.angle = math.radians(self.__angle)
-        self.__friction = 0.1009
+        self.body.position = self._position
+        self.body.angle = math.radians(self._angle)
+        self._friction = 0.1009
 
         self.shape = pymunk.Poly.create_box(self.body, (size[0], size[1]))
         self.shape.elasticity = 0.5
@@ -215,19 +215,19 @@ class Robot:
 
         self.velocity += rotate_2d(self.acceleration_vector,
                                    self.body.angle) * time_step
-        self.velocity *= (1 - self.__friction)
+        self.velocity *= (1 - self._friction)
 
         pos = self.velocity * time_step
         self.body.position += pos
 
         self.angular_velocity += self.angular_acceleration * time_step
-        self.angular_velocity *= (1 - self.__friction)
+        self.angular_velocity *= (1 - self._friction)
         angle = self.angular_velocity * time_step
         self.body.angle += angle
 
         self.body.angle %= (2 * math.pi)
 
-        for sensor in self.__sensors:
+        for sensor in self._sensors:
             sensor.update(
                 time_step,
                 events,
@@ -275,7 +275,7 @@ class Robot:
 
         screen.blit(rotated_marker, rotated_rect.topleft)
 
-        for sensor in self.__sensors:
+        for sensor in self._sensors:
             sensor.draw(
                 screen,
                 self.body.position,

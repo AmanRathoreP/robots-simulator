@@ -41,25 +41,25 @@ class Simulator:
             simulator = Simulator(robots=[robot1], scaling_factor=1, tick=60, overlay_fps=True)
         """
         pygame.init()
-        self.__tick = tick
-        self.__overlays = overlays
-        self.__overlay_font_size = overlay_font_size
+        self._tick = tick
+        self._overlays = overlays
+        self._overlay_font_size = overlay_font_size
         self.screen = pygame.display.set_mode(
             (int(1600 * scaling_factor), int(900 * scaling_factor)),
             pygame.RESIZABLE)
         self.clock = pygame.time.Clock()
-        self.font = ft.SysFont("Verdana", self.__overlay_font_size)
+        self.font = ft.SysFont("Verdana", self._overlay_font_size)
 
         if overlay_fps:
-            self.__overlays = [lambda: f"fps = {self.clock.get_fps():.2f}\n"
-                               ] + self.__overlays
+            self._overlays = [lambda: f"fps = {self.clock.get_fps():.2f}\n"
+                              ] + self._overlays
 
         self.space = pymunk.Space()
         self.space.gravity = (0, 0)
 
-        self.__robots = robots
+        self._robots = robots
 
-        for robot in self.__robots:
+        for robot in self._robots:
             self.space.add(robot.get_body, robot.get_shape)
 
     def set_tick(self, tick: int):
@@ -72,7 +72,7 @@ class Simulator:
         Example:
             simulator.set_tick(30)  # Set the simulation to run at 30 frames per second
         """
-        self.__tick = tick
+        self._tick = tick
 
     @property
     def get_tick(self) -> int:
@@ -85,7 +85,7 @@ class Simulator:
         Example:
             current_tick = simulator.get_tick
         """
-        return self.__tick
+        return self._tick
 
     def draw(self):
         """
@@ -95,7 +95,7 @@ class Simulator:
         """
         self.screen.fill((255, 255, 255))
 
-        for robot in self.__robots:
+        for robot in self._robots:
             robot.draw(self.screen)
 
         self.draw_overlay()
@@ -107,15 +107,14 @@ class Simulator:
         This method compiles the overlay text and renders it to the screen.
         """
         overlays = ''
-        for overlay in self.__overlays:
+        for overlay in self._overlays:
             overlays += overlay()
-        __overlays = overlays.split('\n')
+        _overlays = overlays.split('\n')
         if overlays != '':
-            for overlay_number in range(len(__overlays)):
+            for overlay_number in range(len(_overlays)):
                 self.font.render_to(
-                    self.screen,
-                    (0, self.__overlay_font_size * overlay_number),
-                    text=__overlays[overlay_number],
+                    self.screen, (0, self._overlay_font_size * overlay_number),
+                    text=_overlays[overlay_number],
                     fgcolor="green",
                     bgcolor="black")
 
@@ -147,13 +146,13 @@ class Simulator:
             events = pygame.event.get()
             self.event_handler(events)
 
-            for robot in self.__robots:
+            for robot in self._robots:
                 robot.update(self.clock.get_fps(), events)
 
-            self.space.step(1 / self.__tick)
+            self.space.step(1 / self._tick)
 
             self.draw()
             pygame.display.flip()
-            self.clock.tick(self.__tick)
+            self.clock.tick(self._tick)
 
         pygame.quit()
