@@ -1,6 +1,6 @@
 import math
 
-import pygame
+import pygame as pg
 import pymunk
 import vectormath as vmath
 
@@ -248,11 +248,11 @@ class Robot:
         points = [(int(vertex.x), int(vertex.y)) for vertex in vertices]
 
         # Draw the robot's body
-        pygame.draw.polygon(screen, self.base_color, points)
+        pg.draw.polygon(screen, self.base_color, points)
 
         # Draw the outline (if desired)
-        pygame.draw.polygon(screen, self.outline_color, points,
-                            width=2)  # width can be adjusted as needed
+        pg.draw.polygon(screen, self.outline_color, points,
+                        width=2)  # width can be adjusted as needed
 
         front_offset = 20
         front_direction = pymunk.Vec2d(math.cos(self.body.angle),
@@ -260,17 +260,17 @@ class Robot:
         front_position = self.body.position + front_direction * front_offset
 
         marker_size = (6, 6)
-        marker_rect = pygame.Rect(0, 0, *marker_size)
+        marker_rect = pg.Rect(0, 0, *marker_size)
         marker_rect.center = (int(front_position.x), int(front_position.y))
 
         marker_angle = self.body.angle
-        marker_surface = pygame.Surface(marker_size)
+        marker_surface = pg.Surface(marker_size)
         marker_surface.fill(
             (255, 0, 0))  # Marker color (can also be made customizable)
         marker_surface.set_colorkey((0, 0, 0))
 
-        rotated_marker = pygame.transform.rotate(marker_surface,
-                                                 -math.degrees(marker_angle))
+        rotated_marker = pg.transform.rotate(marker_surface,
+                                             -math.degrees(marker_angle))
         rotated_rect = rotated_marker.get_rect(center=marker_rect.center)
 
         screen.blit(rotated_marker, rotated_rect.topleft)
@@ -283,23 +283,23 @@ class Robot:
             )  # contains a blit function
 
     @property
-    def robot_mask(self) -> pygame.Mask:
+    def robot_mask(self) -> pg.Mask:
         width, height = max(self._size) * 2, max(self._size) * 2
-        temp_surface: pygame.Surface = pygame.Surface(
+        temp_surface: pg.Surface = pg.Surface(
             (width, height),
-            pygame.SRCALPHA,
+            pg.SRCALPHA,
         )
 
         vertices = [(v.x - self.body.position.x + width // 2,
                      v.y - self.body.position.y + height // 2)
                     for v in self.robot_vertices]
 
-        pygame.draw.polygon(temp_surface, (255, 255, 255), vertices)
-        __mask = pygame.mask.from_surface(temp_surface)
+        pg.draw.polygon(temp_surface, (255, 255, 255), vertices)
+        __mask = pg.mask.from_surface(temp_surface)
         return __mask
 
     @property
-    def robot_vertices(self) -> list[pygame.Vector2]:
+    def robot_vertices(self) -> list[pg.Vector2]:
         return [
             self.body.position + v.rotated(self.body.angle)
             for v in self.shape.get_vertices()

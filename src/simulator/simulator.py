@@ -1,4 +1,4 @@
-import pygame
+import pygame as pg
 import pymunk
 import pygame.freetype as ft
 
@@ -40,14 +40,14 @@ class Simulator:
             robot1 = Robot(position=[100, 100], angle=0, size=[50, 30], center_of_rotation=[25, 15], sensors={})
             simulator = Simulator(robots=[robot1], scaling_factor=1, tick=60, overlay_fps=True)
         """
-        pygame.init()
+        pg.init()
         self._tick = tick
         self._overlays = overlays
         self._overlay_font_size = overlay_font_size
-        self.screen = pygame.display.set_mode(
+        self.screen = pg.display.set_mode(
             (int(1600 * scaling_factor), int(900 * scaling_factor)), )
-        #! pygame.RESIZABLE)
-        self.clock = pygame.time.Clock()
+        #! pg.RESIZABLE)
+        self.clock = pg.time.Clock()
         self.font = ft.SysFont("Verdana", self._overlay_font_size)
 
         if overlay_fps:
@@ -120,17 +120,17 @@ class Simulator:
 
     def event_handler(self, events):
         """
-        Handle events from Pygame.
+        Handle events from pg.
 
         Args:
             events: The list of events to handle.
         """
         for event in events:
-            if event.type == pygame.QUIT:
+            if event.type == pg.QUIT:
                 self.running = False
-            #! if event.type == pygame.VIDEORESIZE:
-            #!     self.screen = pygame.display.set_mode(event.size,
-            #!                                           pygame.RESIZABLE)
+            #! if event.type == pg.VIDEORESIZE:
+            #!     self.screen = pg.display.set_mode(event.size,
+            #!                                           pg.RESIZABLE)
 
     def run(self):
         """
@@ -143,7 +143,7 @@ class Simulator:
         """
         self.running = True
         while self.running:
-            events = pygame.event.get()
+            events = pg.event.get()
             self.event_handler(events)
 
             for robot in self._robots:
@@ -152,7 +152,7 @@ class Simulator:
             self.space.step(1 / self._tick)
 
             self.draw()
-            pygame.display.flip()
+            pg.display.flip()
             self.clock.tick(self._tick)
 
-        pygame.quit()
+        pg.quit()

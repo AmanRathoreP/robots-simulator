@@ -1,6 +1,6 @@
 import math
 
-import pygame
+import pygame as pg
 import pymunk
 
 
@@ -60,19 +60,18 @@ class Sensor:
         sensor_position = robot_position + offset
 
         if self.shape == "circle":
-            pygame.draw.circle(
+            pg.draw.circle(
                 screen,
                 self.color,
                 (int(sensor_position.x), int(sensor_position.y)),
                 min(self.size) / 2,
             )
         elif self.shape == "rectangle":
-            sensor_surface = pygame.Surface(self.size, pygame.SRCALPHA)
-            pygame.draw.rect(sensor_surface, self.color,
-                             sensor_surface.get_rect())
+            sensor_surface = pg.Surface(self.size, pg.SRCALPHA)
+            pg.draw.rect(sensor_surface, self.color, sensor_surface.get_rect())
 
-            rotated_surface = pygame.transform.rotate(
-                sensor_surface, -math.degrees(robot_angle))
+            rotated_surface = pg.transform.rotate(sensor_surface,
+                                                  -math.degrees(robot_angle))
             rotated_rect = rotated_surface.get_rect(
                 center=(int(sensor_position.x), int(sensor_position.y)))
 
