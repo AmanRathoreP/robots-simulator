@@ -148,6 +148,13 @@ class Simulator:
 
             for robot in self._robots:
                 robot.update(self.clock.get_fps(), events)
+                for sensor in robot._sensors:
+                    sensor.calculate_sensor_data(
+                        robot.get_position,
+                        robot.get_angle,
+                        self._map_mask,
+                        self._map_position,
+                    )
 
             self.space.step(1 / self._tick)
 
