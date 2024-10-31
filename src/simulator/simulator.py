@@ -45,8 +45,8 @@ class Simulator:
         self._overlays = overlays
         self._overlay_font_size = overlay_font_size
         self.screen = pygame.display.set_mode(
-            (int(1600 * scaling_factor), int(900 * scaling_factor)),
-            pygame.RESIZABLE)
+            (int(1600 * scaling_factor), int(900 * scaling_factor)), )
+        #! pygame.RESIZABLE)
         self.clock = pygame.time.Clock()
         self.font = ft.SysFont("Verdana", self._overlay_font_size)
 
@@ -128,9 +128,9 @@ class Simulator:
         for event in events:
             if event.type == pygame.QUIT:
                 self.running = False
-            if event.type == pygame.VIDEORESIZE:
-                self.screen = pygame.display.set_mode(event.size,
-                                                      pygame.RESIZABLE)
+            #! if event.type == pygame.VIDEORESIZE:
+            #!     self.screen = pygame.display.set_mode(event.size,
+            #!                                           pygame.RESIZABLE)
 
     def run(self):
         """

@@ -281,3 +281,26 @@ class Robot:
                 self.body.position,
                 self.body.angle,
             )  # contains a blit function
+
+    @property
+    def robot_mask(self) -> pygame.Mask:
+        width, height = max(self._size) * 2, max(self._size) * 2
+        temp_surface: pygame.Surface = pygame.Surface(
+            (width, height),
+            pygame.SRCALPHA,
+        )
+
+        vertices = [(v.x - self.body.position.x + width // 2,
+                     v.y - self.body.position.y + height // 2)
+                    for v in self.robot_vertices]
+
+        pygame.draw.polygon(temp_surface, (255, 255, 255), vertices)
+        __mask = pygame.mask.from_surface(temp_surface)
+        return __mask
+
+    @property
+    def robot_vertices(self) -> list[pygame.Vector2]:
+        return [
+            self.body.position + v.rotated(self.body.angle)
+            for v in self.shape.get_vertices()
+        ]
