@@ -61,7 +61,7 @@ class Robot:
         self.body = pymunk.Body(mass=1, moment=pymunk.moment_for_box(1, size))
         self.body.position = self._position
         self.body.angle = math.radians(self._angle)
-        self._friction = 0.1009
+        self._friction = 0.31009
 
         self.shape = pymunk.Poly.create_box(self.body, (size[0], size[1]))
         self.shape.elasticity = 0.5

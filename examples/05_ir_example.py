@@ -39,7 +39,7 @@ class PIDController:
 class SimplePIDLineFollower(HumanControlled):
     auto_driving: bool = True
 
-    def __init__(self, *args, kp=1200, ki=0, kd=1500, **kwargs):
+    def __init__(self, *args, kp=2000, ki=0, kd=1500, **kwargs):
         super().__init__(*args, **kwargs)
         self.pid_controller = PIDController(kp, ki, kd)
 
@@ -57,8 +57,8 @@ class SimplePIDLineFollower(HumanControlled):
                 self.get_error,
                 1 / 60 if time_step == 0 else time_step,
             )
-            self.set_angular_velocity(correction / 1000000)
-            self.set_acceleration([0.0001 / 1.1, 0])
+            self.set_angular_acceleration(correction / 95000000)
+            self.set_acceleration([0.00045, 0])
         super().update(time_step, events)
 
     @property
