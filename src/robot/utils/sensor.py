@@ -174,4 +174,51 @@ class LIDARSensor(Sensor):
 
 
 class IRSensor(Sensor):
-    pass
+
+    is_on: bool = False
+
+    def __init__(
+            self,
+            name: str,
+            relative_position: list[int],
+            size: list[int] = [4, 4],
+            off_color: tuple[int] = (0, 0, 0),
+            on_color: tuple[int] = (255, 255, 255),
+    ):
+        super().__init__(name, relative_position, "circle", size, off_color)
+        self.on_color = on_color
+        self.off_color = off_color
+
+    def draw(self, screen, robot_position, robot_angle):
+        self.color = self.on_color if self.is_on else self.off_color
+        super().draw(screen, robot_position, robot_angle)
+
+    def calculate_sensor_data(
+        self,
+        robot_position,
+        robot_angle,  #degrees
+        map_mask: pg.Mask,
+        map_position: pg.Vector2,
+    ):
+        self.calculate_ir_value(
+            robot_position,
+            robot_angle,
+            map_mask,
+            map_position,
+        )
+
+    def calculate_ir_value(
+        self,
+        robot_position,
+        robot_angle,  # degrees
+        map_mask: pg.Mask,
+        map_position: pg.Vector2,
+    ):
+        try:
+            self.is_on = not map_mask.get_at(
+                robot_position +
+                self.relative_position.rotated(math.radians(robot_angle)) -
+                map_position)
+        except IndexError:
+            # If out of bounds, set the sensor as off
+            self.is_on = False
