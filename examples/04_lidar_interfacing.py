@@ -96,10 +96,10 @@ if __name__ == "__main__":
             center_of_rotation=[30, 15],
             sensors=[
                 customLIDARSensor(angle=-45),
-                customLIDARSensor(angle=0),
-                customLIDARSensor(angle=45),
-                customLIDARSensor(angle=22.5),
                 customLIDARSensor(angle=-22.5),
+                customLIDARSensor(angle=0),
+                customLIDARSensor(angle=22.5),
+                customLIDARSensor(angle=45),
             ],
             base_color=(10, 100, 88),
             trigger=lambda: False
