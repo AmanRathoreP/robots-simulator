@@ -26,6 +26,11 @@ class Robot:
         base_color (tuple[int, int, int]): The color of the robot's body.
         outline_color (tuple[int, int, int]): The color of the robot's outline.
     """
+    body_surface: pg.Surface = None
+    sudo_surface: pg.Surface = None
+    """Surface containing area including border"""
+    base_colorkey: pg.Surface = (0, 0, 0)
+    base_outline_colorkey: pg.Surface = (255, 255, 255)
 
     # todo center_of_rotation
     def __init__(
@@ -73,7 +78,6 @@ class Robot:
         self.angular_velocity = 0
         self.turning_speed = 0.05
 
-        # New customizable attributes
         self.base_color = base_color
         self.outline_color = outline_color
 
@@ -242,38 +246,44 @@ class Robot:
 
         This method renders the robot's current shape and position, along with a front marker.
         """
-        vertices = [
-            self.body.local_to_world(v) for v in self.shape.get_vertices()
-        ]
-        points = [(int(vertex.x), int(vertex.y)) for vertex in vertices]
+        border_size: float = 3
 
-        # Draw the robot's body
-        pg.draw.polygon(screen, self.base_color, points)
+        robot_rect = pg.Rect(0, 0, self._size[0], self._size[1])
+        robot_rect.center = self.body.position
 
-        # Draw the outline (if desired)
-        pg.draw.polygon(screen, self.outline_color, points,
-                        width=2)  # width can be adjusted as needed
+        self.body_surface = pg.Surface((self._size[0], self._size[1]))
+        self.body_surface.fill(self.base_color)
+        self.body_surface.set_colorkey(self.base_colorkey)
 
-        front_offset = 20
-        front_direction = pymunk.Vec2d(math.cos(self.body.angle),
-                                       math.sin(self.body.angle))
-        front_position = self.body.position + front_direction * front_offset
+        self.body_surface = pg.transform.rotate(
+            self.body_surface,
+            -math.degrees(self.body.angle),
+        )
 
-        marker_size = (6, 6)
-        marker_rect = pg.Rect(0, 0, *marker_size)
-        marker_rect.center = (int(front_position.x), int(front_position.y))
+        sudo_robot_for_border_rect = pg.Rect(0, 0, self._size[0] + border_size,
+                                             self._size[1] + border_size)
+        sudo_robot_for_border_rect.center = self.body.position
 
-        marker_angle = self.body.angle
-        marker_surface = pg.Surface(marker_size)
-        marker_surface.fill(
-            (255, 0, 0))  # Marker color (can also be made customizable)
-        marker_surface.set_colorkey((0, 0, 0))
+        self.sudo_surface = pg.Surface(
+            (self._size[0] + border_size, self._size[1] + border_size))
+        self.sudo_surface.fill(self.outline_color)
+        self.sudo_surface.set_colorkey(self.base_outline_colorkey)
 
-        rotated_marker = pg.transform.rotate(marker_surface,
-                                             -math.degrees(marker_angle))
-        rotated_rect = rotated_marker.get_rect(center=marker_rect.center)
+        self.sudo_surface = pg.transform.rotate(
+            self.sudo_surface,
+            -math.degrees(self.body.angle),
+        )
 
-        screen.blit(rotated_marker, rotated_rect.topleft)
+        screen.blit(
+            self.sudo_surface,
+            self.sudo_surface.get_rect(
+                center=sudo_robot_for_border_rect.center).topleft,
+        )
+
+        screen.blit(
+            self.body_surface,
+            self.body_surface.get_rect(center=robot_rect.center).topleft,
+        )
 
         for sensor in self._sensors:
             sensor.draw(
