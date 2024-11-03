@@ -1,14 +1,28 @@
-import math
+def map_value(value, from_min, from_max, to_min, to_max):
+    """
+    Map a value from one range to another.
 
-import numpy as np
+    Args:
+        value (float): The value to map.
+        from_min (float): The minimum of the input range.
+        from_max (float): The maximum of the input range.
+        to_min (float): The minimum of the output range.
+        to_max (float): The maximum of the output range.
 
+    Returns:
+        float: The mapped value within the output range.
 
-def rotate_2d(self, angle, unit='rad'):
-    if unit not in ['deg', 'rad']:
-        raise ValueError('Only units of rad or deg are supported')
-    if unit == 'deg':
-        angle = math.radians(angle)
+    Example:
+        mapped_value = map_value(5, 0, 10, 0, 100)  # Returns 50.0
+    """
+    # Ensure from_min and from_max are not equal to avoid division by zero
+    if from_min == from_max:
+        raise ValueError("from_min and from_max cannot be the same value.")
 
-    rotation_matrix = [[np.cos(angle), np.sin(angle)],
-                       [np.sin(angle), np.cos(angle)]]
-    return np.matmul(rotation_matrix, [[self.x], [self.y]]).T[0]
+    # Normalize the value to a range of 0 to 1
+    normalized_value = (value - from_min) / (from_max - from_min)
+
+    # Scale the normalized value to the new range
+    mapped_value = to_min + (normalized_value * (to_max - to_min))
+
+    return mapped_value

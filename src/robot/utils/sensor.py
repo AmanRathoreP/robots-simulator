@@ -1,7 +1,6 @@
 import math
 
 import pygame as pg
-import pymunk
 
 
 class Sensor:
@@ -23,8 +22,7 @@ class Sensor:
                  size: list[int] = [10, 10],
                  color: tuple[int] = (255, 0, 0)):
         self.name = name
-        self.relative_position = pymunk.Vec2d(relative_position[0],
-                                              relative_position[1])
+        self.relative_position: pg.Vector2 = pg.Vector2(relative_position)
         self.shape = shape
         self.size = size
         self.color = color
@@ -56,7 +54,7 @@ class Sensor:
             robot_position: The position of the robot in the simulation.
             robot_angle: The current angle of the robot in radians.
         """
-        offset = self.relative_position.rotated(robot_angle)
+        offset = self.relative_position.rotate_rad(robot_angle)
         sensor_position = robot_position + offset
 
         if self.shape == "circle":
@@ -114,7 +112,7 @@ class LIDARSensor(Sensor):
     def draw(self, screen, robot_position, robot_angle):
         super().draw(screen, robot_position, robot_angle)
         if self.distance != None:
-            sensor_position = robot_position + self.relative_position.rotated(
+            sensor_position = robot_position + self.relative_position.rotate_rad(
                 robot_angle)
 
             lidar_angle = math.degrees(robot_angle) + self.angle
@@ -154,8 +152,8 @@ class LIDARSensor(Sensor):
         map_mask: pg.Mask,
         map_position: pg.Vector2,
     ):
-        sensor_position = robot_position + self.relative_position.rotated(
-            math.radians(robot_angle))
+        sensor_position = robot_position + self.relative_position.rotate(
+            robot_angle)
 
         lidar_angle = math.radians(robot_angle + self.angle)
 
@@ -216,8 +214,7 @@ class IRSensor(Sensor):
     ):
         try:
             self.is_on = not map_mask.get_at(
-                robot_position +
-                self.relative_position.rotated(math.radians(robot_angle)) -
+                robot_position + self.relative_position.rotate(robot_angle) -
                 map_position)
         except IndexError:
             # If out of bounds, set the sensor as off

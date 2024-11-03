@@ -1,10 +1,6 @@
 import math
 
 import pygame as pg
-import pymunk
-import vectormath as vmath
-
-from src.utils.helper_functions import rotate_2d
 
 
 class Robot:
@@ -13,13 +9,13 @@ class Robot:
 
     Attributes:
         size (list[int]): The width and height of the robot in pixels.
-        position (pymunk.Vec2d): The current position of the robot in the simulation, represented as a vector.
+        position (pygame.Vector2d): The current position of the robot in the simulation, represented as a vector.
         angle (float): The current angle of the robot in degrees, indicating its orientation.
         sensors (list): A list representing the sensors attached to the robot, which can be used for navigation and obstacle detection.
         body (pymunk.Body): The physical body of the robot in the simulation, which interacts with the physics engine.
         shape (pymunk.Poly): The shape of the robot used for collision detection, defining its physical boundaries.
-        acceleration_vector (vmath.Vector2): The current acceleration vector of the robot, which affects its linear movement.
-        velocity (vmath.Vector2): The current velocity vector of the robot, indicating its speed and direction of movement.
+        acceleration_vector (pg.Vector2): The current acceleration vector of the robot, which affects its linear movement.
+        velocity (pg.Vector2): The current velocity vector of the robot, indicating its speed and direction of movement.
         angular_acceleration (float): The current angular acceleration of the robot, affecting its rotational speed.
         angular_velocity (float): The current angular velocity of the robot, indicating how fast it is rotating.
         turning_speed (float): The rate at which the robot can turn, measured in radians per second.
@@ -38,8 +34,8 @@ class Robot:
             position: list[int],
             angle: float,
             size: list[int],
-            center_of_rotation: list[float],
-            sensors: list,
+            center_of_rotation: list[float] = [0, 0],
+            sensors: list = [],
             base_color: tuple[int, int, int] = (0, 128, 255),
             outline_color: tuple[int, int, int] = (0, 0, 0),
             group=1,
@@ -58,22 +54,15 @@ class Robot:
             group (Any): Robots of the same group doesn't collide with each other.
         """
         self._size = size
-        self._position = pymunk.Vec2d(position[0], position[1])
+        self._position = pg.Vector2(position[0], position[1])
         self._angle = angle
         self._sensors = sensors
         self._center_of_rotation = center_of_rotation
 
-        self.body = pymunk.Body(mass=1, moment=pymunk.moment_for_box(1, size))
-        self.body.position = self._position
-        self.body.angle = math.radians(self._angle)
         self._friction = 0.31009
 
-        self.shape = pymunk.Poly.create_box(self.body, (size[0], size[1]))
-        self.shape.elasticity = 0.5
-        self.shape.filter = pymunk.ShapeFilter(group=group)
-
-        self.acceleration_vector = vmath.Vector2(0, 0)
-        self.velocity = vmath.Vector2(0, 0)
+        self.acceleration_vector = pg.Vector2(0, 0)
+        self.velocity = pg.Vector2(0, 0)
         self.angular_acceleration = 0
         self.angular_velocity = 0
         self.turning_speed = 0.05
@@ -91,7 +80,7 @@ class Robot:
         Example:
             robot.set_position([200, 150])  # Move the robot to (200, 150)
         """
-        self.body.position = pymunk.Vec2d(position[0], position[1])
+        self._position = pg.Vector2(position)
 
     def set_angle(self, angle: float):
         """
@@ -103,20 +92,20 @@ class Robot:
         Example:
             robot.set_angle(90)  # Rotate the robot to face 90 degrees
         """
-        self.body.angle = math.radians(angle)
+        self._angle = math.radians(angle)
 
     @property
-    def get_position(self) -> pymunk.Vec2d:
+    def get_position(self) -> pg.Vector2:
         """
         Get the current position of the robot.
 
         Returns:
-            pymunk.Vec2d: The current position of the robot.
+            pygame.Vector2d: The current position of the robot.
 
         Example:
             position = robot.get_position
         """
-        return self.body.position
+        return self._position
 
     @property
     def get_angle(self) -> float:
@@ -129,33 +118,7 @@ class Robot:
         Example:
             angle = robot.get_angle
         """
-        return math.degrees(self.body.angle)
-
-    @property
-    def get_body(self) -> pymunk.Body:
-        """
-        Get the physical body of the robot.
-
-        Returns:
-            pymunk.Body: The body of the robot.
-
-        Example:
-            body = robot.get_body
-        """
-        return self.body
-
-    @property
-    def get_shape(self) -> pymunk.Poly:
-        """
-        Get the shape of the robot.
-
-        Returns:
-            pymunk.Poly: The shape of the robot used for collision detection.
-
-        Example:
-            shape = robot.get_shape
-        """
-        return self.shape
+        return math.degrees(self._angle)
 
     def set_acceleration(self, acceleration: list[float]):
         """
@@ -167,8 +130,7 @@ class Robot:
         Example:
             robot.set_acceleration([1.0, 0.0])  # Accelerate in the x direction
         """
-        self.acceleration_vector = vmath.Vector2(acceleration[0],
-                                                 acceleration[1])
+        self.acceleration_vector = pg.Vector2(acceleration)
 
     def set_angular_acceleration(self, angular_acceleration: float):
         """
@@ -217,19 +179,19 @@ class Robot:
         """
         self.event_handler(events)
 
-        self.velocity += rotate_2d(self.acceleration_vector,
-                                   self.body.angle) * time_step
+        self.velocity += self.acceleration_vector.rotate_rad(
+            self._angle) * time_step
         self.velocity *= (1 - self._friction)
 
         pos = self.velocity * time_step
-        self.body.position += pos
+        self._position += pos
 
         self.angular_velocity += self.angular_acceleration * time_step
         self.angular_velocity *= (1 - self._friction)
         angle = self.angular_velocity * time_step
-        self.body.angle += angle
+        self._angle += angle
 
-        self.body.angle %= (2 * math.pi)
+        self._angle %= (2 * math.pi)
 
         for sensor in self._sensors:
             sensor.update(
@@ -248,8 +210,8 @@ class Robot:
         """
         border_size: float = 3
 
-        robot_rect = pg.Rect(0, 0, self._size[0], self._size[1])
-        robot_rect.center = self.body.position
+        self.robot_rect = pg.Rect(0, 0, self._size[0], self._size[1])
+        self.robot_rect.center = self._position
 
         self.body_surface = pg.Surface((self._size[0], self._size[1]))
         self.body_surface.fill(self.base_color)
@@ -257,12 +219,13 @@ class Robot:
 
         self.body_surface = pg.transform.rotate(
             self.body_surface,
-            -math.degrees(self.body.angle),
+            -math.degrees(self._angle),
         )
 
-        sudo_robot_for_border_rect = pg.Rect(0, 0, self._size[0] + border_size,
-                                             self._size[1] + border_size)
-        sudo_robot_for_border_rect.center = self.body.position
+        self.sudo_robot_for_border_rect = pg.Rect(0, 0,
+                                                  self._size[0] + border_size,
+                                                  self._size[1] + border_size)
+        self.sudo_robot_for_border_rect.center = self._position
 
         self.sudo_surface = pg.Surface(
             (self._size[0] + border_size, self._size[1] + border_size))
@@ -271,46 +234,27 @@ class Robot:
 
         self.sudo_surface = pg.transform.rotate(
             self.sudo_surface,
-            -math.degrees(self.body.angle),
+            -math.degrees(self._angle),
         )
 
         screen.blit(
             self.sudo_surface,
             self.sudo_surface.get_rect(
-                center=sudo_robot_for_border_rect.center).topleft,
+                center=self.sudo_robot_for_border_rect.center).topleft,
         )
 
         screen.blit(
             self.body_surface,
-            self.body_surface.get_rect(center=robot_rect.center).topleft,
+            self.body_surface.get_rect(center=self.robot_rect.center).topleft,
         )
 
         for sensor in self._sensors:
             sensor.draw(
                 screen,
-                self.body.position,
-                self.body.angle,
+                self._position,
+                self._angle,
             )  # contains a blit function
 
     @property
     def robot_mask(self) -> pg.Mask:
-        width, height = max(self._size) * 2, max(self._size) * 2
-        temp_surface: pg.Surface = pg.Surface(
-            (width, height),
-            pg.SRCALPHA,
-        )
-
-        vertices = [(v.x - self.body.position.x + width // 2,
-                     v.y - self.body.position.y + height // 2)
-                    for v in self.robot_vertices]
-
-        pg.draw.polygon(temp_surface, (255, 255, 255), vertices)
-        __mask = pg.mask.from_surface(temp_surface)
-        return __mask
-
-    @property
-    def robot_vertices(self) -> list[pg.Vector2]:
-        return [
-            self.body.position + v.rotated(self.body.angle)
-            for v in self.shape.get_vertices()
-        ]
+        return pg.mask.from_surface(self.body_surface)

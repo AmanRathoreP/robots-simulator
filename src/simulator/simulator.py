@@ -1,5 +1,4 @@
 import pygame as pg
-import pymunk
 import pygame.freetype as ft
 
 from src.robot.robot import Robot
@@ -17,6 +16,10 @@ class Simulator:
         overlay_font_size (int): Font size for overlay text.
         overlays (list): A list of additional overlays to display.
     """
+    """Must be defined in child class"""
+    _map_mask: pg.Mask = None
+    """Must be defined in child class"""
+    _map_position: pg.Vector2 = None
 
     def __init__(self,
                  robots: list[Robot],
@@ -54,13 +57,7 @@ class Simulator:
             self._overlays = [lambda: f"fps = {self.clock.get_fps():.2f}\n"
                               ] + self._overlays
 
-        self.space = pymunk.Space()
-        self.space.gravity = (0, 0)
-
         self._robots = robots
-
-        for robot in self._robots:
-            self.space.add(robot.get_body, robot.get_shape)
 
     def set_tick(self, tick: int):
         """
@@ -155,8 +152,6 @@ class Simulator:
                         self._map_mask,
                         self._map_position,
                     )
-
-            self.space.step(1 / self._tick)
 
             self.draw()
             pg.display.flip()

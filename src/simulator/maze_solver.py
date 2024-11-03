@@ -1,6 +1,9 @@
+import math
+
 import pygame as pg
 
 from src.simulator.simulator import Simulator
+from src.utils import helper_functions as hf
 
 
 class MazeSim(Simulator):
@@ -79,9 +82,44 @@ class MazeSim(Simulator):
         Returns:
             bool: True if a collision is detected, False otherwise.
         """
-        pos: pg.Vector2 = pg.Vector2(
-            robot.body.position[0] - (robot._size[0] * 1),
-            robot.body.position[1] - (robot._size[1] * 1.375))
+        ang_orig = math.degrees(robot._angle)
+        ang = ang_orig % 90
+        if ang_orig % 180 < 90:
+            if ang < 45 and ang >= 0:
+                pos: pg.Vector2 = pg.Vector2(
+                    robot._position[0] - (robot._size[0] * 0.5),
+                    robot._position[1] -
+                    (robot._size[1] * hf.map_value(ang, 0, 45, 0.5, 1)))
+            elif ang < 90 and ang >= 45:
+                pos: pg.Vector2 = pg.Vector2(
+                    robot._position[0] -
+                    (robot._size[0] * hf.map_value(ang, 45, 90, 0.5, 0.25)),
+                    robot._position[1] - (robot._size[1] * 1))
+        else:
+            if ang < 45 and ang >= 0:
+                pos: pg.Vector2 = pg.Vector2(
+                    robot._position[0] -
+                    (robot._size[0] * hf.map_value(ang, 0, 45, 0.25, 0.5)),
+                    robot._position[1] - (robot._size[1] * 1))
+            elif ang < 90 and ang >= 45:
+                pos: pg.Vector2 = pg.Vector2(
+                    robot._position[0] - (robot._size[0] * 0.5),
+                    robot._position[1] -
+                    (robot._size[1] * hf.map_value(ang, 45, 90, 1, 0.5)))
+
+        #* pos: pg.Vector2 = pg.Vector2( #0(360) and 180
+        #*     robot._position[0] - (robot._size[0] * 0.5),
+        #*     robot._position[1] - (robot._size[1] * 0.5))
+        #* pos: pg.Vector2 = pg.Vector2(  #22.5
+        #*     robot._position[0] - (robot._size[0] * 0.5),
+        #*     robot._position[1] - (robot._size[1] * 0.75))
+        #* pos: pg.Vector2 = pg.Vector2(  #45 and 135, 225, 315
+        #*     robot._position[0] - (robot._size[0] * 0.5),
+        #*     robot._position[1] - (robot._size[1] * 1))
+        #* pos: pg.Vector2 = pg.Vector2(  #270 and 90
+        #*     robot._position[0] - (robot._size[0] * 0.25),
+        #*     robot._position[1] - (robot._size[1] * 1))
+
         if self._map_mask.overlap(
                 robot.robot_mask,
             [pos[0] - self._map_position[0], pos[1] - self._map_position[1]
