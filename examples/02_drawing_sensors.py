@@ -31,8 +31,8 @@ if __name__ == "__main__":
         overlay_fps=True,
         overlay_font_size=30,
         overlays=[
-            lambda: f"v1 = {robots[0].velocity}\n",
-            lambda: f"angle1 = {robots[0].get_angle:0.2f}\n",
+            lambda: f"v1 = {robots[0].get_velocity()}\n",
+            lambda: f"angle1 = {round(robots[0].get_angle(), 2)}\n",
         ],
     )
 

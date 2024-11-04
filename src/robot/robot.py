@@ -5,20 +5,17 @@ import pygame as pg
 
 class Robot:
     """
-    A class to represent a robot in a 2D simulation using Pygame and Pymunk.
+    A class to represent a robot in a 2D simulation using Pygame.
 
     Attributes:
         size (list[int]): The width and height of the robot in pixels.
         position (pygame.Vector2d): The current position of the robot in the simulation, represented as a vector.
         angle (float): The current angle of the robot in degrees, indicating its orientation.
         sensors (list): A list representing the sensors attached to the robot, which can be used for navigation and obstacle detection.
-        body (pymunk.Body): The physical body of the robot in the simulation, which interacts with the physics engine.
-        shape (pymunk.Poly): The shape of the robot used for collision detection, defining its physical boundaries.
-        acceleration_vector (pg.Vector2): The current acceleration vector of the robot, which affects its linear movement.
-        velocity (pg.Vector2): The current velocity vector of the robot, indicating its speed and direction of movement.
+        acceleration (pygame.Vector2): The current acceleration vector of the robot, which affects its linear movement.
+        velocity (pygame.Vector2): The current velocity vector of the robot, indicating its speed and direction of movement.
         angular_acceleration (float): The current angular acceleration of the robot, affecting its rotational speed.
         angular_velocity (float): The current angular velocity of the robot, indicating how fast it is rotating.
-        turning_speed (float): The rate at which the robot can turn, measured in radians per second.
         base_color (tuple[int, int, int]): The color of the robot's body.
         outline_color (tuple[int, int, int]): The color of the robot's outline.
     """
@@ -38,7 +35,6 @@ class Robot:
             sensors: list = [],
             base_color: tuple[int, int, int] = (0, 128, 255),
             outline_color: tuple[int, int, int] = (0, 0, 0),
-            group=1,
     ):
         """
         Initializes the Robot.
@@ -51,7 +47,6 @@ class Robot:
             sensors (dict): A dictionary of sensors associated with the robot.
             base_color (tuple[int, int, int]): The color of the robot's body (default: blue).
             outline_color (tuple[int, int, int]): The color of the robot's outline (default: black).
-            group (Any): Robots of the same group doesn't collide with each other.
         """
         self._size = size
         self._position = pg.Vector2(position[0], position[1])
@@ -61,11 +56,10 @@ class Robot:
 
         self._friction = 0.31009
 
-        self.acceleration_vector = pg.Vector2(0, 0)
+        self.acceleration = pg.Vector2(0, 0)
         self.velocity = pg.Vector2(0, 0)
         self.angular_acceleration = 0
         self.angular_velocity = 0
-        self.turning_speed = 0.05
 
         self.base_color = base_color
         self.outline_color = outline_color
@@ -94,7 +88,6 @@ class Robot:
         """
         self._angle = math.radians(angle)
 
-    @property
     def get_position(self) -> pg.Vector2:
         """
         Get the current position of the robot.
@@ -107,7 +100,6 @@ class Robot:
         """
         return self._position
 
-    @property
     def get_angle(self) -> float:
         """
         Get the current angle of the robot.
@@ -130,7 +122,25 @@ class Robot:
         Example:
             robot.set_acceleration([1.0, 0.0])  # Accelerate in the x direction
         """
-        self.acceleration_vector = pg.Vector2(acceleration)
+        self.acceleration = pg.Vector2(acceleration)
+
+    def set_velocity(self, velocity: list[float]):
+        """
+        Set the velocity vector for the robot.
+
+        Args:
+            velocity (list[float]): The new velocity vector as [x, y].
+
+        Example:
+            robot.set_velocity([1.0, 0.0])
+        """
+        self.velocity = pg.Vector2(velocity)
+
+    def get_velocity(self) -> pg.Vector2:
+        """
+        Get the current velocity of the robot.
+        """
+        return self.velocity
 
     def set_angular_acceleration(self, angular_acceleration: float):
         """
@@ -156,6 +166,18 @@ class Robot:
         """
         self.angular_velocity = angular_velocity
 
+    def get_angular_acceleration(self) -> float:
+        """
+        Get the current angular acceleration of the robot.
+        """
+        return self.angular_acceleration
+
+    def get_angular_velocity(self) -> float:
+        """
+        Get the current angular velocity of the robot.
+        """
+        return self.angular_velocity
+
     def event_handler(self, events):
         """
         Handle user input events.
@@ -179,8 +201,7 @@ class Robot:
         """
         self.event_handler(events)
 
-        self.velocity += self.acceleration_vector.rotate_rad(
-            self._angle) * time_step
+        self.velocity += self.acceleration.rotate_rad(self._angle) * time_step
         self.velocity *= (1 - self._friction)
 
         pos = self.velocity * time_step

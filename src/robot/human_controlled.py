@@ -45,18 +45,18 @@ class HumanControlled(Robot):
                     0)  # Stop angular acceleration when no key is pressed
 
             if keys[pg.K_s]:
-                self.set_position(self.get_position + pg.Vector2(0, 1))
+                self.set_position(self.get_position() + pg.Vector2(0, 1))
             if keys[pg.K_w]:
-                self.set_position(self.get_position - pg.Vector2(0, 1))
+                self.set_position(self.get_position() - pg.Vector2(0, 1))
             if keys[pg.K_d]:
-                self.set_position(self.get_position + pg.Vector2(1, 0))
+                self.set_position(self.get_position() + pg.Vector2(1, 0))
             if keys[pg.K_a]:
-                self.set_position(self.get_position - pg.Vector2(1, 0))
+                self.set_position(self.get_position() - pg.Vector2(1, 0))
             if keys[pg.K_q]:
-                self.set_angle(self.get_angle - 5)
+                self.set_angle(self.get_angle() - 5)
             if keys[pg.K_e]:
-                self.set_angle(self.get_angle + 5)
+                self.set_angle(self.get_angle() + 5)
             if keys[pg.K_1]:
-                self.set_angle(self.get_angle - 1)
+                self.set_angle(self.get_angle() - 1)
             if keys[pg.K_3]:
-                self.set_angle(self.get_angle + 1)
+                self.set_angle(self.get_angle() + 1)

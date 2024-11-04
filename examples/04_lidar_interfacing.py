@@ -25,7 +25,7 @@ class customHumanControlled(HumanControlled):
         trigger=lambda: False,
     ):
         super().__init__(position, angle, size, center_of_rotation, sensors,
-                         base_color, outline_color, group)
+                         base_color, outline_color)
         self.trigger = trigger
 
     def event_handler(self, events):
@@ -116,10 +116,10 @@ if __name__ == "__main__":
         overlay_font_size=20,
         overlays=[
             lambda:
-            f"v2 = [{round(robots[1].velocity.x, 6)}, {round(robots[1].velocity.y, 6)}]\n",
+            f"v2 = [{round(robots[1].get_velocity().x, 6)}, {round(robots[1].get_velocity().y, 6)}]\n",
             lambda:
-            f"angular_v2x10^6 = {round(robots[1].angular_velocity * 1000000, 3)}\n",
-            lambda: f"angle2 = {robots[1].get_angle:0.2f}\n",
+            f"angular_v2x10^6 = {round(robots[1].get_angular_velocity() * 1000000, 3)}\n",
+            lambda: f"angle2 = {robots[1].get_angle():0.2f}\n",
             lambda: "LIDAR Front: [" + ", ".join(
                 f"{robots[1]._sensors[i].distance}"
                 for i in range(len(robots[1]._sensors))) + "]\n",

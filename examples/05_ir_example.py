@@ -1,5 +1,6 @@
 import os
 import sys
+import math
 
 import pygame as pg
 
@@ -81,7 +82,7 @@ if __name__ == "__main__":
     robots = [
         SimplePIDLineFollower(
             position=[1016, 600],
-            angle=-145,
+            angle=math.radians(200),
             size=[16, 25],
             center_of_rotation=[30, 15],
             sensors=create_ir_sensors(),
@@ -98,12 +99,12 @@ if __name__ == "__main__":
         overlay_font_size=30,
         overlays=[
             lambda:
-            f"v1 = [{round(robots[0].velocity.x, 6)}, {round(robots[0].velocity.y, 6)}]\n",
+            f"v1 = [{round(robots[0].get_velocity().x, 6)}, {round(robots[0].get_velocity().y, 6)}]\n",
             lambda:
-            f"angular_v1x10^6 = {round(robots[0].angular_velocity * 1000000, 3)}\n",
+            f"angular_v1x10^6 = {round(robots[0].get_angular_velocity() * 1000000, 3)}\n",
             lambda:
-            f"pos = [{int(robots[0].get_position.x)}, {int(robots[0].get_position.y)}]\n",
-            lambda: f"angle1 = {robots[0].get_angle:0.2f}\n",
+            f"pos = [{int(robots[0].get_position().x)}, {int(robots[0].get_position().y)}]\n",
+            lambda: f"angle1 = {robots[0].get_angle():0.2f}\n",
         ],
     )
 

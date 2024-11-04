@@ -6,7 +6,7 @@ from src.robot.robot import Robot
 
 class Simulator:
     """
-    A class to create and run a 2D robot simulation using Pygame and Pymunk.
+    A class to create and run a 2D robot simulation using Pygame.
 
     Attributes:
         robots (list[Robot]): A list of Robot instances to be simulated.
@@ -16,10 +16,10 @@ class Simulator:
         overlay_font_size (int): Font size for overlay text.
         overlays (list): A list of additional overlays to display.
     """
-    """Must be defined in child class"""
     _map_mask: pg.Mask = None
     """Must be defined in child class"""
     _map_position: pg.Vector2 = None
+    """Must be defined in child class"""
 
     def __init__(self,
                  robots: list[Robot],
@@ -42,6 +42,7 @@ class Simulator:
         Example:
             robot1 = Robot(position=[100, 100], angle=0, size=[50, 30], center_of_rotation=[25, 15], sensors={})
             simulator = Simulator(robots=[robot1], scaling_factor=1, tick=60, overlay_fps=True)
+            simulator.run()
         """
         pg.init()
         self._tick = tick
@@ -54,35 +55,12 @@ class Simulator:
         self.font = ft.SysFont("Verdana", self._overlay_font_size)
 
         if overlay_fps:
-            self._overlays = [lambda: f"fps = {self.clock.get_fps():.2f}\n"
-                              ] + self._overlays
+            self._overlays.insert(
+                0,
+                lambda: f"fps = {self.clock.get_fps():.2f}\n",
+            )
 
         self._robots = robots
-
-    def set_tick(self, tick: int):
-        """
-        Set the tick rate for the simulation.
-
-        Args:
-            tick (int): The new tick rate.
-
-        Example:
-            simulator.set_tick(30)  # Set the simulation to run at 30 frames per second
-        """
-        self._tick = tick
-
-    @property
-    def get_tick(self) -> int:
-        """
-        Get the current tick rate.
-
-        Returns:
-            int: The current tick rate.
-
-        Example:
-            current_tick = simulator.get_tick
-        """
-        return self._tick
 
     def draw(self):
         """
@@ -110,14 +88,19 @@ class Simulator:
         if overlays != '':
             for overlay_number in range(len(_overlays)):
                 self.font.render_to(
-                    self.screen, (0, self._overlay_font_size * overlay_number),
+                    self.screen,
+                    (
+                        0,
+                        self._overlay_font_size * overlay_number,
+                    ),
                     text=_overlays[overlay_number],
                     fgcolor="green",
-                    bgcolor="black")
+                    bgcolor="black",
+                )
 
     def event_handler(self, events):
         """
-        Handle events from pg.
+        Handle Pygame events, including quitting the simulation.
 
         Args:
             events: The list of events to handle.
@@ -133,7 +116,7 @@ class Simulator:
         """
         Run the simulation loop.
 
-        This method handles event processing, updates the robots, steps the Pymunk space, and draws the screen.
+        This method handles event processing, updates the robots, and draws the screen.
         
         Example:
             simulator.run()  # Start the simulation loop
@@ -147,8 +130,8 @@ class Simulator:
                 robot.update(self.clock.get_fps(), events)
                 for sensor in robot._sensors:
                     sensor.calculate_sensor_data(
-                        robot.get_position,
-                        robot.get_angle,
+                        robot.get_position(),
+                        robot.get_angle(),
                         self._map_mask,
                         self._map_position,
                     )

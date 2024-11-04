@@ -11,9 +11,9 @@
 * Load mazes from PNG/SVG files, with walls as black pixels and open spaces as white pixels.
 * Multiple sensors like IR and LIDAR are supported, more can be created by inheriting Sensors class
 * Customizable LIDAR sensor positions and angles for enhanced detection.
-* Realistic movement dynamics using Pymunk for accurate simulation.
 * Class-based design allowing easy customization of robot behavior.
 * Integration with friction handling for realistic floor interactions.
+* ...
 
 # Quick start
 
