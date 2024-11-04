@@ -6,6 +6,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.robot.human_controlled import HumanControlled
 from src.simulator.maze_solver import MazeSim
 from src.robot.utils.sensor import Sensor
+import src.utils.helper_functions as hf
 
 if __name__ == "__main__":
     robots = [
@@ -50,7 +51,7 @@ if __name__ == "__main__":
         overlay_font_size=30,
         overlays=[
             lambda:
-            f"v1 = [{round(robots[0].get_velocity().x, 6)}, {round(robots[0].get_velocity().y, 6)}]\n",
+            f"v1*10^3 = {hf.round_vec_2d(robots[0].get_velocity()*1000)}\n",
             lambda:
             f"angular_v1x10^6 = {round(robots[0].get_angular_velocity() * 1000000, 3)}\n",
             lambda: f"angle1 = {robots[0].get_angle():0.2f}\n",

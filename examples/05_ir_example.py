@@ -9,6 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.robot.human_controlled import HumanControlled
 from src.simulator.line_follower import LineSim
 from src.robot.utils.sensor import IRSensor
+import src.utils.helper_functions as hf
 
 
 def create_ir_sensors() -> list[IRSensor]:
@@ -99,11 +100,10 @@ if __name__ == "__main__":
         overlay_font_size=30,
         overlays=[
             lambda:
-            f"v1 = [{round(robots[0].get_velocity().x, 6)}, {round(robots[0].get_velocity().y, 6)}]\n",
+            f"v1*10^3 = {hf.round_vec_2d(robots[0].get_velocity()*1000)}\n",
             lambda:
             f"angular_v1x10^6 = {round(robots[0].get_angular_velocity() * 1000000, 3)}\n",
-            lambda:
-            f"pos = [{int(robots[0].get_position().x)}, {int(robots[0].get_position().y)}]\n",
+            lambda: f"pos = {hf.round_vec_2d(robots[0].get_position(), 0)}\n",
             lambda: f"angle1 = {robots[0].get_angle():0.2f}\n",
         ],
     )

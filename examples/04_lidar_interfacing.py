@@ -8,6 +8,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.robot.human_controlled import HumanControlled
 from src.simulator.maze_solver import MazeSim
 from src.robot.utils.sensor import LIDARSensor
+import src.utils.helper_functions as hf
 
 
 class customHumanControlled(HumanControlled):
@@ -116,7 +117,7 @@ if __name__ == "__main__":
         overlay_font_size=20,
         overlays=[
             lambda:
-            f"v2 = [{round(robots[1].get_velocity().x, 6)}, {round(robots[1].get_velocity().y, 6)}]\n",
+            f"v2*10^3 = {hf.round_vec_2d(robots[1].get_velocity()*1000)}\n",
             lambda:
             f"angular_v2x10^6 = {round(robots[1].get_angular_velocity() * 1000000, 3)}\n",
             lambda: f"angle2 = {robots[1].get_angle():0.2f}\n",

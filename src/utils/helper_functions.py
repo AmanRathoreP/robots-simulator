@@ -1,3 +1,6 @@
+import pygame as pg
+
+
 def map_value(value, from_min, from_max, to_min, to_max):
     """
     Map a value from one range to another.
@@ -26,3 +29,10 @@ def map_value(value, from_min, from_max, to_min, to_max):
     mapped_value = to_min + (normalized_value * (to_max - to_min))
 
     return mapped_value
+
+
+def round_vec_2d(vec: pg.Vector2, decimal_places: int = 2):
+    return pg.Vector2(
+        round(vec[0], decimal_places),
+        round(vec[1], decimal_places),
+    )
