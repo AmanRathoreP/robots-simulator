@@ -27,8 +27,8 @@ if __name__ == "__main__":
         ),
     ]
 
-    robots[1].set_acceleration([0.0001, 0])
-    robots[1].set_angular_acceleration(-0.000001)
+    robots[1].set_acceleration([1000, 0])
+    robots[1].set_angular_acceleration(-10)
 
     simulator = Simulator(
         robots,

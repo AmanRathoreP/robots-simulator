@@ -54,7 +54,7 @@ class Robot:
         self._sensors = sensors
         self._center_of_rotation = center_of_rotation
 
-        self._friction = 0.31009
+        self._friction = 0.1
 
         self.acceleration = pg.Vector2(0, 0)
         self.velocity = pg.Vector2(0, 0)
@@ -194,22 +194,28 @@ class Robot:
         Update the robot's position and angle based on the physics simulation.
 
         Args:
-            time_step (float): The time step for the update, usually based on the simulation frame rate.
+            time_step (float): The time step for the update, usually based on the simulation frame rate. It is basically the FPS.
             events: The list of Pygame events for handling user input.
         
         This method calculates the new position and angle of the robot using its acceleration and velocity.
         """
         self.event_handler(events)
 
-        self.velocity += self.acceleration.rotate_rad(self._angle) * time_step
+        try:
+            dt = 1 / time_step
+        except ZeroDivisionError:
+            # The simulation is still not started as a whole
+            return
+
+        self.velocity += self.acceleration.rotate_rad(self._angle) * dt
         self.velocity *= (1 - self._friction)
 
-        pos = self.velocity * time_step
+        pos = self.velocity * dt
         self._position += pos
 
-        self.angular_velocity += self.angular_acceleration * time_step
+        self.angular_velocity += self.angular_acceleration * dt
         self.angular_velocity *= (1 - self._friction)
-        angle = self.angular_velocity * time_step
+        angle = self.angular_velocity * dt
         self._angle += angle
 
         self._angle %= (2 * math.pi)

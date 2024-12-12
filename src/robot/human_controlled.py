@@ -26,10 +26,10 @@ class HumanControlled(Robot):
             # Control for acceleration and movement
             if keys[pg.K_UP]:  # Accelerate forward
                 self.set_acceleration(
-                    [0.0001,
+                    [1000,
                      0])  # You can adjust the values for desired acceleration
             elif keys[pg.K_DOWN]:  # Accelerate backward
-                self.set_acceleration([-0.0001,
+                self.set_acceleration([-1000,
                                        0])  # Adjust for backward movement
             else:
                 self.set_acceleration(
@@ -37,9 +37,9 @@ class HumanControlled(Robot):
 
             # Control for turning
             if keys[pg.K_LEFT]:  # Turn left
-                self.set_angular_acceleration(-0.000002)
+                self.set_angular_acceleration(-100)
             elif keys[pg.K_RIGHT]:  # Turn right
-                self.set_angular_acceleration(0.000002)
+                self.set_angular_acceleration(100)
             else:
                 self.set_angular_acceleration(
                     0)  # Stop angular acceleration when no key is pressed

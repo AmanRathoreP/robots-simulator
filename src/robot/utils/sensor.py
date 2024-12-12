@@ -43,6 +43,13 @@ class Sensor:
         pass
 
     def update(self, time_step: float, events):
+        """
+        Update the sensor.
+
+        Args:
+            time_step (float): The time step for the update, usually based on the simulation frame rate. It is basically the FPS.
+            events: The list of Pygame events for handling user input.
+        """
         self.event_handler(events)
 
     def draw(self, screen, robot_position, robot_angle):

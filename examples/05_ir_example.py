@@ -35,13 +35,14 @@ class PIDController:
         self.output = (self.kp * error) + (self.ki * self.integral) + (
             self.kd * self.derivative)
         self.previous_error = error
+        print(self.output)
         return self.output
 
 
 class SimplePIDLineFollower(HumanControlled):
     auto_driving: bool = True
 
-    def __init__(self, *args, kp=2000, ki=0, kd=1500, **kwargs):
+    def __init__(self, *args, kp=190, ki=0, kd=1, **kwargs):
         super().__init__(*args, **kwargs)
         self.pid_controller = PIDController(kp, ki, kd)
 
@@ -54,13 +55,20 @@ class SimplePIDLineFollower(HumanControlled):
             super().event_handler(events)
 
     def update(self, time_step: float, events):
+        try:
+            dt = 1 / time_step
+        except ZeroDivisionError:
+            # The simulation is still not started as a whole
+            return
+
         if self.auto_driving:
             correction = self.pid_controller.calculate(
                 self.get_error,
-                1 / 60 if time_step == 0 else time_step,
+                dt,
             )
-            self.set_angular_acceleration(correction / 95000000)
-            self.set_acceleration([0.00045, 0])
+            self.set_angular_acceleration(correction)
+            self.set_acceleration([1500 / (correction + 1), 0])
+
         super().update(time_step, events)
 
     @property
@@ -70,7 +78,7 @@ class SimplePIDLineFollower(HumanControlled):
 
     @classmethod
     def get_turn_from_ir_sensors(cls, ir_sensors_value: list[bool]) -> float:
-        weights = [-1, -1, -1, -1, 1, 1, 1, 1]
+        weights = [-0.4, -0.7, -1, -1, 1, 1, 0.7, 0.4]
         # weights = [-4, -3, -2, -1, 1, 2, 3, 4]
         weighted_sensors = [
             sensor * weight
