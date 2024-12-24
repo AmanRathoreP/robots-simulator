@@ -197,3 +197,4 @@ pyrightconfig.json
 # auto generate stuff ends here
 python_virtual_environment_for_simulator/*
 bin/*
+.VSCodeCounter/*
