@@ -1,8 +1,12 @@
 import random
 import logging
+import math
+import sympy as sp
+from sympy.abc import x, h, k, theta
 import pandas as pd
 import matplotlib.pyplot as plt
 import networkx as nx
+from scipy.optimize import root as sci_root
 
 l = logging.getLogger(__name__)
 
@@ -22,6 +26,38 @@ class MicroMouseMaze:
     visited_nodes : set
         A set to track visited nodes.
     """
+    diagonal_path_eq = sp.Piecewise(
+        (
+            x**5 * 16,
+            x < 0.5,
+        ),
+        (
+            1 - ((-2 * x + 2)**5) / 2,
+            True,
+        ),
+    )
+    path_eq = sp.Piecewise(
+        (
+            diagonal_path_eq.subs(
+                x,
+                x - sp.Rational(5, 2),
+            ),
+            (x > 2.5) & (x < 3.5),
+        ),
+        (
+            1 - diagonal_path_eq.subs(
+                x,
+                x - sp.Rational(7, 2),
+            ),
+            (3.5 < x) & (x < 4.5),
+        ),
+        (
+            0,
+            True,
+        ),
+    )
+
+    line_eq = ((x - h) / sp.tan(theta + (sp.pi / 2))) + k
 
     def __init__(self, size=16):
         """
@@ -452,6 +488,47 @@ class MicroMouseMaze:
                 # No valid path
                 break
         return (cell_width_hight / 2) + (number_of_cell_in_front * 35)
+
+    @classmethod
+    def check_intersection_with_curve(
+        cls,
+        position,  # [x, y]
+        angle,  # radians
+        threshold_distance=1,
+    ):
+        #todo deal with edge cases
+        min_for_line, max_for_line = position[
+            0] - threshold_distance, position[0] + threshold_distance
+        __line_eq = cls.line_eq.subs({
+            h: position[0],
+            k: position[1],
+            theta: angle
+        })
+        if angle % math.pi / 2 == 0:
+            angle = angle * 1.0001
+        if position[0] == 0:
+            position[0] = 0.000001
+        # print(position, angle)
+        try:
+            sol = sp.nsolve(cls.path_eq - __line_eq, x,
+                            (min_for_line + max_for_line) / 2)
+            if not (sol <= max_for_line and sol >= min_for_line):
+                sol = position[0]
+        except Exception as e:
+            sol = position[0]
+
+        dist = math.hypot(
+            position[0] - sol,
+            position[1] - float(__line_eq.subs(
+                x,
+                sol,
+            ), ),
+        )
+
+        if position[1] - float(cls.path_eq.subs(x, position[0])) > 0:
+            return (-1) * dist
+
+        return dist
 
 
 if __name__ == "__main__":
