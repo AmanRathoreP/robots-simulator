@@ -2,7 +2,8 @@ import random
 import logging
 import math
 import sympy as sp
-from sympy.abc import x, h, k, theta
+from sympy.abc import x
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -26,38 +27,24 @@ class MicroMouseMaze:
     visited_nodes : set
         A set to track visited nodes.
     """
-    diagonal_path_eq = sp.Piecewise(
-        (
-            x**5 * 16,
-            x < 0.5,
-        ),
-        (
-            1 - ((-2 * x + 2)**5) / 2,
-            True,
-        ),
-    )
+    diagonal_path_eq = sp.Piecewise((x**5 * 16, x < 0.5),
+                                    (1 - ((-2 * x + 2)**5) / 2, True))
     path_eq = sp.Piecewise(
-        (
-            diagonal_path_eq.subs(
-                x,
-                x - sp.Rational(5, 2),
-            ),
-            (x > 2.5) & (x < 3.5),
-        ),
-        (
-            1 - diagonal_path_eq.subs(
-                x,
-                x - sp.Rational(7, 2),
-            ),
-            (3.5 < x) & (x < 4.5),
-        ),
-        (
-            0,
-            True,
-        ),
+        (1, (x > 3.3) & (x < 3.8)),
+        (diagonal_path_eq.subs(x, x - sp.Rational(5, 2) + 0.3),
+         (x > 2.2) & (x < 3.5)),
+        (1 - diagonal_path_eq.subs(x, x - sp.Rational(7, 2) - 0.3),
+         (3.5 < x) & (x < 4.8)),
+        (0, True),
     )
 
-    line_eq = ((x - h) / sp.tan(theta + (sp.pi / 2))) + k
+    path_func = sp.lambdify(
+        x,
+        path_eq,
+        'numpy',
+    )
+    path_x = np.linspace(0, 5, 250)
+    path_y = path_func(path_x)
 
     def __init__(self, size=16):
         """
@@ -491,44 +478,26 @@ class MicroMouseMaze:
 
     @classmethod
     def check_intersection_with_curve(
-        cls,
-        position,  # [x, y]
-        angle,  # radians
-        threshold_distance=1,
+            cls,
+            position,  # [x, y]
     ):
         #todo deal with edge cases
-        min_for_line, max_for_line = position[
-            0] - threshold_distance, position[0] + threshold_distance
-        __line_eq = cls.line_eq.subs({
-            h: position[0],
-            k: position[1],
-            theta: angle
-        })
-        if angle % math.pi / 2 == 0:
-            angle = angle * 1.0001
-        if position[0] == 0:
-            position[0] = 0.000001
-        # print(position, angle)
-        try:
-            sol = sp.nsolve(cls.path_eq - __line_eq, x,
-                            (min_for_line + max_for_line) / 2)
-            if not (sol <= max_for_line and sol >= min_for_line):
-                sol = position[0]
-        except Exception as e:
-            sol = position[0]
+        shortest_dist = 100
+        for i in range(cls.path_x.shape[0]):
+            dist = math.hypot(
+                cls.path_x[i] - position[0],
+                cls.path_y[i] - position[1],
+            )
+            if dist < shortest_dist:
+                shortest_dist = dist
 
-        dist = math.hypot(
-            position[0] - sol,
-            position[1] - float(__line_eq.subs(
-                x,
-                sol,
-            ), ),
-        )
+        if position[1] - float(cls.path_eq.subs(
+                sp.Symbol('x'),
+                position[0],
+        )) > 0:
+            shortest_dist = (-1) * shortest_dist
 
-        if position[1] - float(cls.path_eq.subs(x, position[0])) > 0:
-            return (-1) * dist
-
-        return dist
+        return shortest_dist
 
 
 if __name__ == "__main__":

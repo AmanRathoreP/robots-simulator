@@ -116,7 +116,7 @@ class MicroMouseController:
             try:
                 __x_rel = hf.map_value(self.position.x, 1102, 515, 0, -15)
                 __y_rel = hf.map_value(self.position.y, 606, 24, 0, 15)
-                command= ["ac", MicroMouseMaze.check_intersection_with_curve([(-1)*__x_rel, __y_rel], math.radians(angle))-hf.map_value(self.position.y, 606, 24, 0, 15), False, None]
+                command= ["ac", MicroMouseMaze.check_intersection_with_curve([(-1)*__x_rel, __y_rel]), False, None]
                 self.commands.loc[self.commands.shape[0]] = command
                 return command
                 # print(float(hf.map_value(self.position.x, 1102, 515, 0, -15) - hf.map_value(self.position.y, 606, 24, 0, 15)))
@@ -290,7 +290,7 @@ class customHumanControlled(HumanControlled):
     
     tcPID = PID(0, 0, 0)
     rcPID = PID(0, 0, 0)
-    acPID = PID(11, 0, 0)
+    acPID = PID(75, 0, 10)
 
     current_command = ['n', 0, False, None]
 
@@ -437,8 +437,8 @@ class customHumanControlled(HumanControlled):
             correction=self.acPID.calculate(self.current_command[1],dt,)
             print(self.get_angle(), correction,self.current_command[1])
             self.set_angular_acceleration(correction)
-            # self.set_acceleration([(random.choice(self.__acc_values))*(1-(correction/100))*0.3, 0.0])
-            self.set_acceleration([(random.choice(self.__acc_values))*0.6, 0.0])
+            # self.set_acceleration([(random.choice(self.__acc_values))*(1-(correction/100))*0.4, 0.0])
+            self.set_acceleration([(random.choice(self.__acc_values))*0.4, 0.0])
 
 
         
@@ -514,8 +514,7 @@ if __name__ == "__main__":
     robots = [
         customHumanControlled(
             # position=[1020, 606],
-            position=[1102, 604],
-            # position=[1102, 606],
+            position=[1102, 606],
             # position=[515, 606],
             # position=[515, 24],
             # position=[1102, 24],
