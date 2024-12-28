@@ -27,24 +27,37 @@ class MicroMouseMaze:
     visited_nodes : set
         A set to track visited nodes.
     """
-    diagonal_path_eq = sp.Piecewise((x**5 * 16, x < 0.5),
-                                    (1 - ((-2 * x + 2)**5) / 2, True))
+
+    diagonal_path_eq = sp.Piecewise((
+        2 * x * x,
+        x < 0.5,
+    ), (
+        1 - (-2 * x + 2)**2 / 2,
+        True,
+    ))
+
     path_eq = sp.Piecewise(
-        (1, (x > 3.3) & (x < 3.8)),
-        (diagonal_path_eq.subs(x, x - sp.Rational(5, 2) + 0.3),
-         (x > 2.2) & (x < 3.5)),
-        (1 - diagonal_path_eq.subs(x, x - sp.Rational(7, 2) - 0.3),
-         (3.5 < x) & (x < 4.8)),
-        (0, True),
+        (
+            diagonal_path_eq.subs(
+                x,
+                x - sp.Rational(5, 2),
+            ),
+            (x > 2.5) & (x < 3.5),
+        ),
+        (
+            1 - diagonal_path_eq.subs(
+                x,
+                x - sp.Rational(7, 2),
+            ),
+            (3.5 < x) & (x < 4.5),
+        ),
+        (
+            0,
+            True,
+        ),
     )
 
-    path_func = sp.lambdify(
-        x,
-        path_eq,
-        'numpy',
-    )
-    path_x = np.linspace(0, 5, 250)
-    path_y = path_func(path_x)
+    der_path_eq = sp.diff(path_eq)
 
     def __init__(self, size=16):
         """
@@ -482,22 +495,12 @@ class MicroMouseMaze:
             position,  # [x, y]
     ):
         #todo deal with edge cases
-        shortest_dist = 100
-        for i in range(cls.path_x.shape[0]):
-            dist = math.hypot(
-                cls.path_x[i] - position[0],
-                cls.path_y[i] - position[1],
-            )
-            if dist < shortest_dist:
-                shortest_dist = dist
 
-        if position[1] - float(cls.path_eq.subs(
+        return math.degrees(
+            math.atan(cls.der_path_eq.subs(
                 sp.Symbol('x'),
                 position[0],
-        )) > 0:
-            shortest_dist = (-1) * shortest_dist
-
-        return shortest_dist
+            ), ), )
 
 
 if __name__ == "__main__":

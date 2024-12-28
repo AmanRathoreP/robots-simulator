@@ -116,7 +116,7 @@ class MicroMouseController:
             try:
                 __x_rel = hf.map_value(self.position.x, 1102, 515, 0, -15)
                 __y_rel = hf.map_value(self.position.y, 606, 24, 0, 15)
-                command= ["ac", MicroMouseMaze.check_intersection_with_curve([(-1)*__x_rel, __y_rel]), False, None]
+                command= ["ac",  MicroMouseMaze.check_intersection_with_curve([(-1)*__x_rel, __y_rel]) - angle + 180, False, None]
                 self.commands.loc[self.commands.shape[0]] = command
                 return command
                 # print(float(hf.map_value(self.position.x, 1102, 515, 0, -15) - hf.map_value(self.position.y, 606, 24, 0, 15)))
@@ -290,7 +290,7 @@ class customHumanControlled(HumanControlled):
     
     tcPID = PID(0, 0, 0)
     rcPID = PID(0, 0, 0)
-    acPID = PID(75, 0, 10)
+    acPID = PID(0.21, 0, 0)
 
     current_command = ['n', 0, False, None]
 
@@ -436,9 +436,9 @@ class customHumanControlled(HumanControlled):
         if self.current_command[0]=="ac":
             correction=self.acPID.calculate(self.current_command[1],dt,)
             print(self.get_angle(), correction,self.current_command[1])
-            self.set_angular_acceleration(correction)
-            # self.set_acceleration([(random.choice(self.__acc_values))*(1-(correction/100))*0.4, 0.0])
-            self.set_acceleration([(random.choice(self.__acc_values))*0.4, 0.0])
+            # self.set_angular_velocity(correction)
+            self.set_angular_velocity(correction)
+            self.set_acceleration([(random.choice(self.__acc_values))*0.225, 0.0])
 
 
         
